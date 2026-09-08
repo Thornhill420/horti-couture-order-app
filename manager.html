@@ -289,6 +289,7 @@
 
   <script>
     const PASSWORD = 'Itemmanager';
+    const API_BASE = window.location.origin + '/api';
     let catalogData = null;
 
     function unlock() {
@@ -308,24 +309,33 @@
 
     async function loadCatalog() {
       try {
-        const res = await fetch('planterItems.json');
-        catalogData = await res.json();
-      } catch {
-        // If fetch fails (file protocol), try localStorage
-        const saved = localStorage.getItem('planterCatalog');
-        if (saved) {
-          catalogData = JSON.parse(saved);
+        const res = await fetch(API_BASE + '/items');
+        if (res.ok) {
+          catalogData = await res.json();
         } else {
-          alert('Could not load catalog data.');
-          return;
+          throw new Error('API failed');
         }
+      } catch {
+        catalogData = {
+          "categories": [],
+          "colors": [],
+          "lineArtColors": []
+        };
       }
       renderCategorySelect();
       renderCategoryList();
     }
 
-    function saveCatalog() {
-      localStorage.setItem('planterCatalog', JSON.stringify(catalogData));
+    async function saveCatalog() {
+      try {
+        await fetch(API_BASE + '/items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(catalogData)
+        });
+      } catch {
+        // Silently fail if API unavailable
+      }
     }
 
     function renderCategorySelect() {

@@ -63,9 +63,12 @@ let catalogData = CATALOG;
 let orderItems = JSON.parse(localStorage.getItem('orderItems') || '[]');
 let invoiceNumber = parseInt(localStorage.getItem('invoiceNumber') || '100', 10);
 
+const API_BASE = window.location.origin + '/api';
+
 document.addEventListener('DOMContentLoaded', init);
 
-function init() {
+async function init() {
+  await loadCatalog();
   populateCategories();
   populateColors();
   populateLineArt();
@@ -75,6 +78,29 @@ function init() {
 
   renderPlanterButtons();
   renderOrderTable();
+}
+
+async function loadCatalog() {
+  try {
+    const res = await fetch(API_BASE + '/items');
+    if (res.ok) {
+      catalogData = await res.json();
+    }
+  } catch {
+    // API not available, use embedded CATALOG
+  }
+}
+
+async function saveCatalog() {
+  try {
+    await fetch(API_BASE + '/items', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(catalogData)
+    });
+  } catch {
+    // Save locally if API fails
+  }
 }
 
 function populateCategories() {
