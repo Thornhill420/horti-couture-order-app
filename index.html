@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horti-Couture Order App</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Horti-Couture Order App</h1>
+      <a href="manager.html" class="manager-link">Item Manager</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="category-section">
+      <div class="category-bar">
+        <label for="categorySelect">Category</label>
+        <select id="categorySelect"></select>
+      </div>
+    </section>
+
+    <section class="planter-top-section">
+      <div id="planterPanel" class="planter-panel"></div>
+    </section>
+
+    <section class="bottom-section">
+      <div class="left-panel">
+        <div class="input-group">
+          <label for="clientName">Client Name</label>
+          <input type="text" id="clientName" placeholder="Enter client name" autocomplete="off">
+        </div>
+
+        <div class="input-group">
+          <label for="quantityInput">Quantity</label>
+          <input type="number" id="quantityInput" min="1" value="1">
+        </div>
+
+        <div class="input-group">
+          <label for="colorSelect">Colour</label>
+          <select id="colorSelect"></select>
+        </div>
+
+        <div class="input-group">
+          <label for="lineArtSelect">Line Art</label>
+          <select id="lineArtSelect">
+            <option value="">No Line Art</option>
+          </select>
+        </div>
+
+        <div class="input-group checkbox-group">
+          <input type="checkbox" id="drilledCheck">
+          <label for="drilledCheck">Drill Holes</label>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <div class="order-header">
+          <button id="clearBtn" class="btn btn-clear" onclick="clearOrder()">Clear Order</button>
+          <button id="generateBtn" class="btn btn-generate">Generate Order</button>
+        </div>
+        <div class="table-container">
+          <table id="orderTable">
+            <thead>
+              <tr>
+                <th>Planter</th>
+                <th>Qty</th>
+                <th>Colour</th>
+                <th>Line Art</th>
+                <th>Drilled</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="orderBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Item Manager - Horti-Couture</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .manager-main {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .lock-screen {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .lock-screen h2 {
+      margin-bottom: 1rem;
+      color: #1a1a2e;
+    }
+
+    .lock-screen p {
+      color: #64748b;
+      margin-bottom: 1.5rem;
+    }
+
+    .lock-input-group {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .lock-input-group input {
+      padding: 0.6rem 1rem;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1rem;
+      width: 250px;
+    }
+
+    .lock-input-group input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .btn-unlock {
+      background: #1a1a2e;
+      color: white;
+    }
+
+    .btn-unlock:hover {
+      background: #16213e;
+    }
+
+    .manager-content {
+      display: none;
+    }
+
+    .manager-content.active {
+      display: block;
+    }
+
+    .manager-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    .manager-card h3 {
+      margin-bottom: 1rem;
+      color: #1a1a2e;
+      font-size: 1.1rem;
+    }
+
+    .add-form {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 0.5rem 0.75rem;
+      border: 2px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .btn-add {
+      background: #22c55e;
+      color: white;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      height: fit-content;
+    }
+
+    .btn-add:hover {
+      background: #16a34a;
+    }
+
+    .btn-delete-cat {
+      background: #ef4444;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-delete-cat:hover {
+      background: #dc2626;
+    }
+
+    .category-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .category-item {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .category-header h4 {
+      color: #1a1a2e;
+      font-size: 1rem;
+    }
+
+    .item-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .item-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: #f1f5f9;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+
+    .item-tag .remove-item {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0 0.15rem;
+    }
+
+    .item-tag .remove-item:hover {
+      color: #dc2626;
+    }
+
+    .status-msg {
+      margin-top: 0.75rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .status-msg.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-msg.error {
+      display: block;
+      background: #fef2f2;
+      color: #991b1b;
+    }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: #3b82f6;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>Horti-Couture - Item Manager</h1>
+      <a href="index.html" class="manager-link">Back to Orders</a>
+    </div>
+  </header>
+
+  <div class="manager-main">
+    <a href="index.html" class="back-link">&larr; Back to Order Form</a>
+
+    <div id="lockScreen" class="lock-screen">
+      <h2>Item Manager</h2>
+      <p>Enter the manager password to manage items.</p>
+      <div class="lock-input-group">
+        <input type="password" id="passwordInput" placeholder="Enter password">
+        <button class="btn btn-unlock" onclick="unlock()">Unlock</button>
+      </div>
+      <div id="lockError" class="error-msg">Incorrect password.</div>
+    </div>
+
+    <div id="managerContent" class="manager-content">
+      <div class="manager-card">
+        <h3>Add New Item</h3>
+        <div class="add-form">
+          <div class="form-group">
+            <label>Category</label>
+            <select id="addCategory"></select>
+          </div>
+          <div class="form-group">
+            <label>New Category Name</label>
+            <input type="text" id="newCategoryName" placeholder="Or type new category">
+          </div>
+          <div class="form-group">
+            <label>Item Name</label>
+            <input type="text" id="newItemName" placeholder="Item name">
+          </div>
+          <button class="btn-add" onclick="addItem()">Add Item</button>
+        </div>
+        <div id="addStatus" class="status-msg"></div>
+      </div>
+
+      <div class="manager-card">
+        <h3>Current Items</h3>
+        <div id="categoryList" class="category-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PASSWORD = 'Itemmanager';
+    let catalogData = null;
+
+    function unlock() {
+      const input = document.getElementById('passwordInput').value;
+      if (input === PASSWORD) {
+        document.getElementById('lockScreen').style.display = 'none';
+        document.getElementById('managerContent').classList.add('active');
+        loadCatalog();
+      } else {
+        document.getElementById('lockError').style.display = 'block';
+      }
+    }
+
+    document.getElementById('passwordInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') unlock();
+    });
+
+    async function loadCatalog() {
+      try {
+        const res = await fetch('planterItems.json');
+        catalogData = await res.json();
+      } catch {
+        // If fetch fails (file protocol), try localStorage
+        const saved = localStorage.getItem('planterCatalog');
+        if (saved) {
+          catalogData = JSON.parse(saved);
+        } else {
+          alert('Could not load catalog data.');
+          return;
+        }
+      }
+      renderCategorySelect();
+      renderCategoryList();
+    }
+
+    function saveCatalog() {
+      localStorage.setItem('planterCatalog', JSON.stringify(catalogData));
+    }
+
+    function renderCategorySelect() {
+      const sel = document.getElementById('addCategory');
+      sel.innerHTML = '';
+      catalogData.categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.name;
+        opt.textContent = cat.name;
+        sel.appendChild(opt);
+      });
+    }
+
+    function renderCategoryList() {
+      const container = document.getElementById('categoryList');
+      container.innerHTML = '';
+
+      catalogData.categories.forEach((cat, catIdx) => {
+        const div = document.createElement('div');
+        div.className = 'category-item';
+
+        const header = document.createElement('div');
+        header.className = 'category-header';
+        header.innerHTML = `<h4>${cat.name} (${cat.items.length})</h4>`;
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-delete-cat';
+        delBtn.textContent = 'Delete Category';
+        delBtn.onclick = () => deleteCategory(catIdx);
+        header.appendChild(delBtn);
+
+        div.appendChild(header);
+
+        const tags = document.createElement('div');
+        tags.className = 'item-tags';
+
+        cat.items.forEach((item, itemIdx) => {
+          const tag = document.createElement('span');
+          tag.className = 'item-tag';
+          tag.innerHTML = `${item}<button class="remove-item" onclick="deleteItem(${catIdx}, ${itemIdx})">&times;</button>`;
+          tags.appendChild(tag);
+        });
+
+        div.appendChild(tags);
+        container.appendChild(div);
+      });
+    }
+
+    function addItem() {
+      const catSelect = document.getElementById('addCategory');
+      const newCatName = document.getElementById('newCategoryName').value.trim();
+      const itemName = document.getElementById('newItemName').value.trim();
+      const status = document.getElementById('addStatus');
+
+      if (!itemName) {
+        status.className = 'status-msg error';
+        status.textContent = 'Please enter an item name.';
+        return;
+      }
+
+      let catName = catSelect.value;
+      if (newCatName) {
+        catName = newCatName;
+      }
+
+      if (!catName) {
+        status.className = 'status-msg error';
+        status.textContent = 'Please select or enter a category.';
+        return;
+      }
+
+      let cat = catalogData.categories.find(c => c.name === catName);
+      if (!cat) {
+        cat = { name: catName, items: [] };
+        catalogData.categories.push(cat);
+      }
+
+      if (cat.items.some(i => i.toLowerCase() === itemName.toLowerCase())) {
+        status.className = 'status-msg error';
+        status.textContent = `'${itemName}' already exists in '${catName}'.`;
+        return;
+      }
+
+      cat.items.push(itemName);
+      saveCatalog();
+      renderCategorySelect();
+      renderCategoryList();
+
+      document.getElementById('newItemName').value = '';
+      document.getElementById('newCategoryName').value = '';
+      status.className = 'status-msg success';
+      status.textContent = `Added '${itemName}' to '${catName}'.`;
+    }
+
+    function deleteItem(catIdx, itemIdx) {
+      const cat = catalogData.categories[catIdx];
+      const item = cat.items[itemIdx];
+      if (!confirm(`Delete "${item}" from "${cat.name}"?`)) return;
+
+      cat.items.splice(itemIdx, 1);
+      if (cat.items.length === 0) {
+        catalogData.categories.splice(catIdx, 1);
+      }
+      saveCatalog();
+      renderCategorySelect();
+      renderCategoryList();
+    }
+
+    function deleteCategory(catIdx) {
+      const cat = catalogData.categories[catIdx];
+      if (!confirm(`Delete entire category "${cat.name}" and all ${cat.items.length} items?`)) return;
+
+      catalogData.categories.splice(catIdx, 1);
+      saveCatalog();
+      renderCategorySelect();
+      renderCategoryList();
+    }
+  </script>
+</body>
+</html>
