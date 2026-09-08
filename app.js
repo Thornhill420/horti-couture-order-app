@@ -62,6 +62,8 @@ const CATALOG = {
 let catalogData = CATALOG;
 let orderItems = JSON.parse(localStorage.getItem('orderItems') || '[]');
 let invoiceNumber = parseInt(localStorage.getItem('invoiceNumber') || '100', 10);
+let pendingFile = null;
+let pendingFileName = '';
 
 const API_BASE = window.location.origin + '/api';
 
@@ -330,7 +332,21 @@ async function generateOrder() {
 
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const fileName = `${clientName}_${dateStr}_OrderForm_${invoiceNumber}.xlsx`;
-    saveAs(blob, fileName);
+
+    pendingFile = new File([buffer], fileName, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    pendingFileName = fileName;
+
+    document.getElementById('shareFileName').textContent = fileName;
+
+    // Hide share button if Web Share API not available
+    const shareBtn = document.getElementById('shareBtn');
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [pendingFile] })) {
+      shareBtn.style.display = 'inline-flex';
+    } else {
+      shareBtn.style.display = 'none';
+    }
+
+    document.getElementById('shareModal').style.display = 'flex';
 
     invoiceNumber++;
     localStorage.setItem('invoiceNumber', invoiceNumber.toString());
@@ -346,3 +362,30 @@ async function generateOrder() {
 
 window.removeItem = removeItem;
 window.clearOrder = clearOrder;
+
+async function shareFile() {
+  if (!pendingFile) return;
+  try {
+    await navigator.share({
+      files: [pendingFile],
+      title: pendingFileName
+    });
+  } catch {
+    // User cancelled or error
+  }
+}
+
+function downloadFile() {
+  if (!pendingFile) return;
+  saveAs(pendingFile, pendingFileName);
+}
+
+function closeShareModal() {
+  document.getElementById('shareModal').style.display = 'none';
+  pendingFile = null;
+  pendingFileName = '';
+}
+
+window.shareFile = shareFile;
+window.downloadFile = downloadFile;
+window.closeShareModal = closeShareModal;
