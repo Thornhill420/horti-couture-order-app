@@ -352,14 +352,20 @@ tr:hover td {
   }
 
   .left-panel {
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 0.75rem;
   }
 
   .input-group {
-    flex: 1;
-    min-width: 120px;
+    min-width: 0;
+  }
+
+  .autocomplete-wrapper {
+    max-width: 100%;
+  }
+
+  .input-group input[type="number"] {
+    width: 100%;
   }
 
   .logo-img {
