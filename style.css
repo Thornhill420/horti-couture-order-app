@@ -14,8 +14,9 @@ body {
 header {
   background: linear-gradient(135deg, #1a1a2e, #16213e);
   color: white;
-  padding: 1rem 2rem;
+  padding: 0.75rem 2rem;
   box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  border-bottom: 3px solid #5bc4be;
 }
 
 .header-content {
@@ -26,26 +27,37 @@ header {
   align-items: center;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+}
+
 .header-content h1 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 600;
   letter-spacing: 0.5px;
 }
 
 .manager-link {
-  color: #94a3b8;
+  color: #5bc4be;
   text-decoration: none;
   font-size: 0.9rem;
   padding: 0.4rem 1rem;
-  border: 1px solid #475569;
+  border: 1px solid #5bc4be;
   border-radius: 6px;
   transition: all 0.2s;
 }
 
 .manager-link:hover {
   color: white;
-  border-color: #94a3b8;
-  background: rgba(148,163,184,0.1);
+  border-color: #5bc4be;
+  background: #5bc4be;
 }
 
 main {
@@ -88,7 +100,7 @@ main {
 
 .category-bar select:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #5bc4be;
 }
 
 /* Planter Top Section - full width at top */
@@ -120,7 +132,7 @@ main {
 }
 
 .planter-btn:hover {
-  background: #3b82f6;
+  background: #5bc4be;
   transform: translateY(-1px);
 }
 
@@ -169,7 +181,7 @@ main {
 .input-group input:focus,
 .input-group select:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: #5bc4be;
 }
 
 .input-group input[type="number"] {
@@ -187,6 +199,7 @@ main {
   width: 18px;
   height: 18px;
   cursor: pointer;
+  accent-color: #5bc4be;
 }
 
 .checkbox-group label {
@@ -206,6 +219,7 @@ main {
 .order-header {
   display: flex;
   justify-content: flex-end;
+  gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
@@ -220,14 +234,14 @@ main {
 }
 
 .btn-generate {
-  background: #1a1a2e;
+  background: #5bc4be;
   color: white;
 }
 
 .btn-generate:hover {
-  background: #16213e;
+  background: #4aad9f;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(26,26,46,0.3);
+  box-shadow: 0 2px 8px rgba(91,196,190,0.4);
 }
 
 .btn-generate:disabled {
@@ -257,13 +271,13 @@ table {
 }
 
 th {
-  background: #f1f5f9;
+  background: #5bc4be;
   padding: 0.7rem 0.8rem;
   text-align: left;
   font-weight: 600;
   font-size: 0.85rem;
-  color: #475569;
-  border-bottom: 2px solid #e2e8f0;
+  color: white;
+  border-bottom: 2px solid #4aad9f;
 }
 
 td {
@@ -273,7 +287,7 @@ td {
 }
 
 tr:hover td {
-  background: #f8fafc;
+  background: #f0fdfa;
 }
 
 .btn-remove {
@@ -313,5 +327,13 @@ tr:hover td {
   .input-group {
     flex: 1;
     min-width: 120px;
+  }
+
+  .logo-img {
+    height: 32px;
+  }
+
+  .header-content h1 {
+    font-size: 1.1rem;
   }
 }
