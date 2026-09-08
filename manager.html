@@ -236,6 +236,123 @@
     .back-link:hover {
       text-decoration: underline;
     }
+
+    .backup-form {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn-export {
+      background: #3b82f6;
+      color: white;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-export:hover {
+      background: #2563eb;
+    }
+
+    .btn-import {
+      background: #f59e0b;
+      color: white;
+      padding: 0.5rem 1.25rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-import:hover {
+      background: #d97706;
+    }
+
+    .import-input {
+      display: none;
+    }
+
+    .confirm-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .confirm-box {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .confirm-box h3 {
+      color: #ef4444;
+      margin-bottom: 0.75rem;
+    }
+
+    .confirm-box p {
+      color: #475569;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .confirm-items-list {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 1rem;
+      max-height: 150px;
+      overflow-y: auto;
+      font-size: 0.85rem;
+      color: #991b1b;
+    }
+
+    .confirm-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    .btn-confirm-cancel {
+      background: #e2e8f0;
+      color: #475569;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .btn-confirm-delete {
+      background: #ef4444;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-confirm-delete:hover {
+      background: #dc2626;
+    }
   </style>
 </head>
 <body>
@@ -283,6 +400,28 @@
       <div class="manager-card">
         <h3>Current Items</h3>
         <div id="categoryList" class="category-list"></div>
+      </div>
+
+      <div class="manager-card">
+        <h3>Backup</h3>
+        <div class="backup-form">
+          <button class="btn-export" onclick="exportCatalog()">Export Backup</button>
+          <button class="btn-import" onclick="document.getElementById('importFile').click()">Import Backup</button>
+          <input type="file" id="importFile" class="import-input" accept=".json" onchange="importCatalog(event)">
+        </div>
+        <div id="backupStatus" class="status-msg"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="confirmOverlay" class="confirm-overlay" style="display:none">
+    <div class="confirm-box">
+      <h3 id="confirmTitle">Confirm Delete</h3>
+      <p id="confirmMessage"></p>
+      <div id="confirmItemsList" class="confirm-items-list" style="display:none"></div>
+      <div class="confirm-actions">
+        <button class="btn-confirm-cancel" onclick="closeConfirm()">Cancel</button>
+        <button class="btn-confirm-delete" id="confirmDeleteBtn">Yes, Delete</button>
       </div>
     </div>
   </div>
@@ -433,25 +572,112 @@
     function deleteItem(catIdx, itemIdx) {
       const cat = catalogData.categories[catIdx];
       const item = cat.items[itemIdx];
-      if (!confirm(`Delete "${item}" from "${cat.name}"?`)) return;
-
-      cat.items.splice(itemIdx, 1);
-      if (cat.items.length === 0) {
-        catalogData.categories.splice(catIdx, 1);
-      }
-      saveCatalog();
-      renderCategorySelect();
-      renderCategoryList();
+      showConfirm(
+        'Delete Item',
+        `Are you sure you want to delete "${item}" from "${cat.name}"?`,
+        '',
+        () => {
+          cat.items.splice(itemIdx, 1);
+          if (cat.items.length === 0) {
+            catalogData.categories.splice(catIdx, 1);
+          }
+          saveCatalog();
+          renderCategorySelect();
+          renderCategoryList();
+        }
+      );
     }
 
     function deleteCategory(catIdx) {
       const cat = catalogData.categories[catIdx];
-      if (!confirm(`Delete entire category "${cat.name}" and all ${cat.items.length} items?`)) return;
+      const itemList = cat.items.join(', ');
+      showConfirm(
+        'Delete Category',
+        `Are you sure you want to delete the entire category "${cat.name}" and all ${cat.items.length} items?`,
+        itemList,
+        () => {
+          catalogData.categories.splice(catIdx, 1);
+          saveCatalog();
+          renderCategorySelect();
+          renderCategoryList();
+        }
+      );
+    }
 
-      catalogData.categories.splice(catIdx, 1);
-      saveCatalog();
-      renderCategorySelect();
-      renderCategoryList();
+    let confirmCallback = null;
+
+    function showConfirm(title, message, items, callback) {
+      document.getElementById('confirmTitle').textContent = title;
+      document.getElementById('confirmMessage').textContent = message;
+      const listEl = document.getElementById('confirmItemsList');
+      if (items) {
+        listEl.textContent = items;
+        listEl.style.display = 'block';
+      } else {
+        listEl.style.display = 'none';
+      }
+      confirmCallback = callback;
+      document.getElementById('confirmOverlay').style.display = 'flex';
+    }
+
+    function closeConfirm() {
+      document.getElementById('confirmOverlay').style.display = 'none';
+      confirmCallback = null;
+    }
+
+    document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+      if (confirmCallback) confirmCallback();
+      closeConfirm();
+    });
+
+    function exportCatalog() {
+      const date = new Date().toISOString().slice(0, 10);
+      const blob = new Blob([JSON.stringify(catalogData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `planterItems-backup-${date}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+      const status = document.getElementById('backupStatus');
+      status.className = 'status-msg success';
+      status.textContent = 'Backup exported successfully.';
+    }
+
+    async function importCatalog(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const status = document.getElementById('backupStatus');
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+
+        if (!data.categories || !Array.isArray(data.categories)) {
+          status.className = 'status-msg error';
+          status.textContent = 'Invalid backup file format.';
+          return;
+        }
+
+        showConfirm(
+          'Import Backup',
+          `This will replace all current items with the backup data (${data.categories.length} categories). Continue?`,
+          '',
+          async () => {
+            catalogData = data;
+            await saveCatalog();
+            renderCategorySelect();
+            renderCategoryList();
+            status.className = 'status-msg success';
+            status.textContent = 'Backup imported successfully.';
+          }
+        );
+      } catch {
+        status.className = 'status-msg error';
+        status.textContent = 'Failed to read backup file.';
+      }
+      event.target.value = '';
     }
   </script>
 </body>
