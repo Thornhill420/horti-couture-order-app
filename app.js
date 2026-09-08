@@ -61,7 +61,7 @@ const CATALOG = {
 
 let catalogData = CATALOG;
 let orderItems = JSON.parse(localStorage.getItem('orderItems') || '[]');
-let invoiceNumber = parseInt(localStorage.getItem('invoiceNumber') || '100', 10);
+let invoiceNumber = 83;
 let customerNames = [];
 
 const API_BASE = window.location.origin + '/api';
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
   try {
-    await Promise.all([loadCatalog(), loadCustomers()]);
+    await Promise.all([loadCatalog(), loadCustomers(), loadInvoice()]);
   } catch {}
 
   populateCategories();
@@ -111,6 +111,26 @@ async function saveCustomers() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(customerNames)
+    });
+  } catch {}
+}
+
+async function loadInvoice() {
+  try {
+    const res = await fetch(API_BASE + '/invoice');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.invoiceNumber) invoiceNumber = data.invoiceNumber;
+    }
+  } catch {}
+}
+
+async function saveInvoice() {
+  try {
+    await fetch(API_BASE + '/invoice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ invoiceNumber })
     });
   } catch {}
 }
@@ -391,7 +411,7 @@ async function generateOrder() {
     }
 
     invoiceNumber++;
-    localStorage.setItem('invoiceNumber', invoiceNumber.toString());
+    saveInvoice();
 
     // Clear order after successful generation
     orderItems = [];
