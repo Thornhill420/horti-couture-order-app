@@ -62,8 +62,6 @@ const CATALOG = {
 let catalogData = CATALOG;
 let orderItems = JSON.parse(localStorage.getItem('orderItems') || '[]');
 let invoiceNumber = parseInt(localStorage.getItem('invoiceNumber') || '100', 10);
-let pendingBuffer = null;
-let pendingFileName = '';
 
 const API_BASE = window.location.origin + '/api';
 
@@ -332,17 +330,7 @@ async function generateOrder() {
 
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const fileName = `${clientName}_${dateStr}_OrderForm_${invoiceNumber}.xlsx`;
-
-    pendingBuffer = buffer;
-    pendingFileName = fileName;
-
-    document.getElementById('shareFileName').textContent = fileName;
-
-    // Show share button if Web Share API is available
-    const shareBtn = document.getElementById('shareBtn');
-    shareBtn.style.display = navigator.share ? 'inline-flex' : 'none';
-
-    document.getElementById('shareModal').style.display = 'flex';
+    saveAs(blob, fileName);
 
     invoiceNumber++;
     localStorage.setItem('invoiceNumber', invoiceNumber.toString());
@@ -358,36 +346,3 @@ async function generateOrder() {
 
 window.removeItem = removeItem;
 window.clearOrder = clearOrder;
-
-async function shareFile() {
-  if (!pendingBuffer) return;
-  try {
-    const file = new File([pendingBuffer], pendingFileName, {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    });
-    await navigator.share({
-      files: [file],
-      title: pendingFileName
-    });
-  } catch (err) {
-    if (err.name !== 'AbortError') {
-      alert('Share failed. Try the Download button instead.');
-    }
-  }
-}
-
-function downloadFile() {
-  if (!pendingBuffer) return;
-  const blob = new Blob([pendingBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  saveAs(blob, pendingFileName);
-}
-
-function closeShareModal() {
-  document.getElementById('shareModal').style.display = 'none';
-  pendingBuffer = null;
-  pendingFileName = '';
-}
-
-window.shareFile = shareFile;
-window.downloadFile = downloadFile;
-window.closeShareModal = closeShareModal;
