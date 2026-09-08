@@ -1,4 +1,6 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
+
+const redis = Redis.fromEnv();
 
 const DEFAULT_CATALOG = {
   "categories": [
@@ -24,24 +26,23 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      let catalog = await kv.get('catalog');
+      let catalog = await redis.get('catalog');
       if (!catalog) {
         catalog = DEFAULT_CATALOG;
-        await kv.set('catalog', catalog);
+        await redis.set('catalog', catalog);
       }
       return res.status(200).json(catalog);
     }
 
     if (req.method === 'POST') {
       const catalog = req.body;
-      await kv.set('catalog', catalog);
+      await redis.set('catalog', catalog);
       return res.status(200).json({ success: true });
     }
 
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (error) {
     console.error('API Error:', error);
-    // Fallback to default catalog if KV fails
     if (req.method === 'GET') {
       return res.status(200).json(DEFAULT_CATALOG);
     }
