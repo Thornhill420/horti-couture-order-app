@@ -62,16 +62,18 @@ const CATALOG = {
 let catalogData = CATALOG;
 let orderItems = JSON.parse(localStorage.getItem('orderItems') || '[]');
 let invoiceNumber = parseInt(localStorage.getItem('invoiceNumber') || '100', 10);
+let customerNames = [];
 
 const API_BASE = window.location.origin + '/api';
 
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
-  await loadCatalog();
+  await Promise.all([loadCatalog(), loadCustomers()]);
   populateCategories();
   populateColors();
   populateLineArt();
+  setupAutocomplete();
 
   document.getElementById('categorySelect').addEventListener('change', renderPlanterButtons);
   document.getElementById('generateBtn').addEventListener('click', generateOrder);
@@ -80,27 +82,65 @@ async function init() {
   renderOrderTable();
 }
 
-async function loadCatalog() {
+async function loadCustomers() {
   try {
-    const res = await fetch(API_BASE + '/items');
+    const res = await fetch(API_BASE + '/customers');
     if (res.ok) {
-      catalogData = await res.json();
+      customerNames = await res.json();
     }
   } catch {
-    // API not available, use embedded CATALOG
+    customerNames = [];
   }
 }
 
-async function saveCatalog() {
+async function saveCustomers() {
   try {
-    await fetch(API_BASE + '/items', {
+    await fetch(API_BASE + '/customers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(catalogData)
+      body: JSON.stringify(customerNames)
     });
-  } catch {
-    // Save locally if API fails
-  }
+  } catch {}
+}
+
+function setupAutocomplete() {
+  const input = document.getElementById('clientName');
+  const wrapper = document.createElement('div');
+  wrapper.className = 'autocomplete-wrapper';
+  input.parentNode.insertBefore(wrapper, input);
+  wrapper.appendChild(input);
+
+  const list = document.createElement('div');
+  list.className = 'autocomplete-list';
+  list.id = 'autocompleteList';
+  wrapper.appendChild(list);
+
+  input.addEventListener('input', () => {
+    const val = input.value.toLowerCase();
+    list.innerHTML = '';
+    if (!val) { list.style.display = 'none'; return; }
+
+    const matches = customerNames.filter(c => c.toLowerCase().includes(val));
+    if (matches.length === 0) { list.style.display = 'none'; return; }
+
+    list.style.display = 'block';
+    matches.slice(0, 8).forEach(name => {
+      const item = document.createElement('div');
+      item.className = 'autocomplete-item';
+      item.textContent = name;
+      item.addEventListener('click', () => {
+        input.value = name;
+        list.style.display = 'none';
+      });
+      list.appendChild(item);
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrapper.contains(e.target)) {
+      list.style.display = 'none';
+    }
+  });
 }
 
 function populateCategories() {
@@ -331,6 +371,12 @@ async function generateOrder() {
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const fileName = `${clientName}_${dateStr}_OrderForm_${invoiceNumber}.xlsx`;
     saveAs(blob, fileName);
+
+    // Auto-save new customer name
+    if (!customerNames.some(c => c.toLowerCase() === clientName.toLowerCase())) {
+      customerNames.push(clientName);
+      saveCustomers();
+    }
 
     invoiceNumber++;
     localStorage.setItem('invoiceNumber', invoiceNumber.toString());
