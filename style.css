@@ -60,6 +60,29 @@ header {
   background: #5bc4be;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-export {
+  padding: 0.4rem 1rem;
+  border: 1px solid #5bc4be;
+  border-radius: 6px;
+  background: white;
+  color: #5bc4be;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.btn-export:hover {
+  background: #5bc4be;
+  color: white;
+}
+
 main {
   max-width: 1200px;
   margin: 0 auto;

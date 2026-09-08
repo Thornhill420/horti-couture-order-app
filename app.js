@@ -410,6 +410,22 @@ async function generateOrder() {
       saveCustomers();
     }
 
+    // Log invoice to history
+    const history = JSON.parse(localStorage.getItem('invoiceHistory') || '[]');
+    history.push({
+      invoiceNumber: invoiceNumber,
+      clientName: clientName,
+      date: new Date().toISOString(),
+      items: orderItems.map(i => ({
+        planter: i.planter,
+        quantity: i.quantity,
+        color: i.color,
+        lineArt: i.lineArt,
+        drilled: i.drilled
+      }))
+    });
+    localStorage.setItem('invoiceHistory', JSON.stringify(history));
+
     invoiceNumber++;
     saveInvoice();
 
@@ -424,3 +440,15 @@ async function generateOrder() {
 
 window.removeItem = removeItem;
 window.clearOrder = clearOrder;
+window.exportHistory = exportHistory;
+
+function exportHistory() {
+  const history = JSON.parse(localStorage.getItem('invoiceHistory') || '[]');
+  if (history.length === 0) {
+    alert('No invoice history to export.');
+    return;
+  }
+  const blob = new Blob([JSON.stringify(history, null, 2)], { type: 'application/json' });
+  const dateStr = new Date().toISOString().slice(0, 10);
+  saveAs(blob, `InvoiceHistory_${dateStr}.json`);
+}
