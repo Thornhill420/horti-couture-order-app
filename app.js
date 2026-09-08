@@ -62,7 +62,7 @@ const CATALOG = {
 let catalogData = CATALOG;
 let orderItems = JSON.parse(localStorage.getItem('orderItems') || '[]');
 let invoiceNumber = parseInt(localStorage.getItem('invoiceNumber') || '100', 10);
-let pendingFile = null;
+let pendingBuffer = null;
 let pendingFileName = '';
 
 const API_BASE = window.location.origin + '/api';
@@ -333,18 +333,14 @@ async function generateOrder() {
     const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
     const fileName = `${clientName}_${dateStr}_OrderForm_${invoiceNumber}.xlsx`;
 
-    pendingFile = new File([buffer], fileName, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    pendingBuffer = buffer;
     pendingFileName = fileName;
 
     document.getElementById('shareFileName').textContent = fileName;
 
-    // Hide share button if Web Share API not available
+    // Show share button if Web Share API is available
     const shareBtn = document.getElementById('shareBtn');
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [pendingFile] })) {
-      shareBtn.style.display = 'inline-flex';
-    } else {
-      shareBtn.style.display = 'none';
-    }
+    shareBtn.style.display = navigator.share ? 'inline-flex' : 'none';
 
     document.getElementById('shareModal').style.display = 'flex';
 
@@ -364,25 +360,31 @@ window.removeItem = removeItem;
 window.clearOrder = clearOrder;
 
 async function shareFile() {
-  if (!pendingFile) return;
+  if (!pendingBuffer) return;
   try {
+    const file = new File([pendingBuffer], pendingFileName, {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
     await navigator.share({
-      files: [pendingFile],
+      files: [file],
       title: pendingFileName
     });
-  } catch {
-    // User cancelled or error
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      alert('Share failed. Try the Download button instead.');
+    }
   }
 }
 
 function downloadFile() {
-  if (!pendingFile) return;
-  saveAs(pendingFile, pendingFileName);
+  if (!pendingBuffer) return;
+  const blob = new Blob([pendingBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  saveAs(blob, pendingFileName);
 }
 
 function closeShareModal() {
   document.getElementById('shareModal').style.display = 'none';
-  pendingFile = null;
+  pendingBuffer = null;
   pendingFileName = '';
 }
 
