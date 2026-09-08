@@ -69,7 +69,10 @@ const API_BASE = window.location.origin + '/api';
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
-  await Promise.all([loadCatalog(), loadCustomers()]);
+  try {
+    await Promise.all([loadCatalog(), loadCustomers()]);
+  } catch {}
+
   populateCategories();
   populateColors();
   populateLineArt();
@@ -82,15 +85,24 @@ async function init() {
   renderOrderTable();
 }
 
+async function loadCatalog() {
+  try {
+    const res = await fetch(API_BASE + '/items');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.categories) catalogData = data;
+    }
+  } catch {}
+}
+
 async function loadCustomers() {
   try {
     const res = await fetch(API_BASE + '/customers');
     if (res.ok) {
-      customerNames = await res.json();
+      const data = await res.json();
+      if (Array.isArray(data)) customerNames = data;
     }
-  } catch {
-    customerNames = [];
-  }
+  } catch {}
 }
 
 async function saveCustomers() {
