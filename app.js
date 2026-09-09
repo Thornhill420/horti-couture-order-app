@@ -337,14 +337,16 @@ async function generateOrder() {
     ws.getCell('A2').font = { bold: true, size: 14 };
     ws.getCell('A2').alignment = { horizontal: 'left' };
 
-    // Row 4: Headers with grey background
+    // Row 4: Headers with grey background and borders
     const headers = ['Planter', 'Quantity', 'Colour', 'Line Art', 'Drilled'];
+    const thinBorder = { style: 'thin', color: { argb: 'FF000000' } };
     headers.forEach((h, i) => {
       const cell = ws.getRow(4).getCell(i + 1);
       cell.value = h;
       cell.font = { bold: true, size: 16 };
       cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
       cell.alignment = { horizontal: 'center' };
+      cell.border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
     });
 
     ws.getRow(5).height = 10;
@@ -362,6 +364,7 @@ async function generateOrder() {
       for (let c = 1; c <= 5; c++) {
         row.getCell(c).font = { size: 16 };
         row.getCell(c).alignment = { horizontal: 'center' };
+        row.getCell(c).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
       }
       rowNum++;
     });
@@ -374,13 +377,15 @@ async function generateOrder() {
 
     rowNum += 2;
 
-    // Totals header with grey background
+    // Totals header with grey background and borders
     const totalsHeader = ws.getRow(rowNum);
     totalsHeader.getCell(1).value = 'Item Totals';
     totalsHeader.getCell(1).font = { bold: true, size: 16 };
     totalsHeader.getCell(1).alignment = { horizontal: 'left' };
     totalsHeader.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
+    totalsHeader.getCell(1).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
     totalsHeader.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
+    totalsHeader.getCell(2).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
 
     rowNum++;
 
@@ -389,13 +394,15 @@ async function generateOrder() {
       row.getCell(1).value = name;
       row.getCell(1).font = { size: 14 };
       row.getCell(1).alignment = { horizontal: 'left' };
+      row.getCell(1).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
       row.getCell(2).value = qty;
       row.getCell(2).font = { bold: true, size: 14 };
       row.getCell(2).alignment = { horizontal: 'center' };
+      row.getCell(2).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
       rowNum++;
     });
 
-    ws.pageSetup = { paperSize: 6, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 1 };
+    ws.pageSetup = { paperSize: 11, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 1 };
 
     const buffer = await wb.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
