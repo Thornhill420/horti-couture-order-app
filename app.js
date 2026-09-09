@@ -313,7 +313,13 @@ async function generateOrder() {
 
   try {
     const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet('Order Form');
+    wb.creator = 'Horti-Couture';
+    wb.created = new Date();
+    wb.modified = new Date();
+    const ws = wb.addWorksheet('Order Form', {
+      properties: { defaultRowHeight: 15 },
+      pageSetup: { paperSize: 11, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 1 }
+    });
 
     ws.columns = [
       { width: 28 },
@@ -418,15 +424,6 @@ async function generateOrder() {
       row.getCell(5).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
       rowNum++;
     });
-
-    ws.pageSetup = {
-      paperSize: 11,
-      orientation: 'portrait',
-      fitToPage: true,
-      fitToWidth: 1,
-      fitToHeight: 1,
-      margins: { left: 0.5, right: 0.5, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 }
-    };
 
     const buffer = await wb.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
