@@ -330,6 +330,9 @@ async function generateOrder() {
     ws.getCell('A1').font = { bold: true, size: 16 };
     ws.getCell('A1').alignment = { horizontal: 'left' };
     ws.getCell('A1').border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+    ws.getCell('B1').border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+    ws.getCell('C1').border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+    ws.getCell('D1').border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
 
     ws.getCell('E1').value = `Order #: ${invoiceNumber}`;
     ws.getCell('E1').font = { bold: true, size: 16 };
@@ -341,6 +344,10 @@ async function generateOrder() {
     ws.getCell('A2').font = { bold: true, size: 14 };
     ws.getCell('A2').alignment = { horizontal: 'left' };
     ws.getCell('A2').border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+    ws.getCell('B2').border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+    ws.getCell('C2').border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+    ws.getCell('D2').border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+    ws.getCell('E2').border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
 
     // Row 4: Headers with grey background and borders
     const headers = ['Planter', 'Quantity', 'Colour', 'Line Art', 'Drilled'];
@@ -390,6 +397,9 @@ async function generateOrder() {
     totalsHeader.getCell(1).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
     totalsHeader.getCell(2).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD3D3D3' } };
     totalsHeader.getCell(2).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+    totalsHeader.getCell(3).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+    totalsHeader.getCell(4).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+    totalsHeader.getCell(5).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
 
     rowNum++;
 
@@ -403,10 +413,20 @@ async function generateOrder() {
       row.getCell(2).font = { bold: true, size: 14 };
       row.getCell(2).alignment = { horizontal: 'center' };
       row.getCell(2).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+      row.getCell(3).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+      row.getCell(4).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
+      row.getCell(5).border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
       rowNum++;
     });
 
-    ws.pageSetup = { paperSize: 11, orientation: 'portrait', fitToPage: true, fitToWidth: 1, fitToHeight: 1 };
+    ws.pageSetup = {
+      paperSize: 11,
+      orientation: 'portrait',
+      fitToPage: true,
+      fitToWidth: 1,
+      fitToHeight: 1,
+      margins: { left: 0.5, right: 0.5, top: 0.5, bottom: 0.5, header: 0.3, footer: 0.3 }
+    };
 
     const buffer = await wb.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
