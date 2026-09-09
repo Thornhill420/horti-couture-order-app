@@ -324,22 +324,26 @@ async function generateOrder() {
     ];
 
     // Row 1: Client Name + Order #
+    const thinBorder = { style: 'thin', color: { argb: 'FF000000' } };
+
     ws.getCell('A1').value = `Client Name: ${clientName}`;
     ws.getCell('A1').font = { bold: true, size: 16 };
     ws.getCell('A1').alignment = { horizontal: 'left' };
+    ws.getCell('A1').border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
 
     ws.getCell('E1').value = `Order #: ${invoiceNumber}`;
     ws.getCell('E1').font = { bold: true, size: 16 };
     ws.getCell('E1').alignment = { horizontal: 'right' };
+    ws.getCell('E1').border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
 
     // Row 2: Date
     ws.getCell('A2').value = `Date: ${new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}`;
     ws.getCell('A2').font = { bold: true, size: 14 };
     ws.getCell('A2').alignment = { horizontal: 'left' };
+    ws.getCell('A2').border = { top: thinBorder, bottom: thinBorder, left: thinBorder, right: thinBorder };
 
     // Row 4: Headers with grey background and borders
     const headers = ['Planter', 'Quantity', 'Colour', 'Line Art', 'Drilled'];
-    const thinBorder = { style: 'thin', color: { argb: 'FF000000' } };
     headers.forEach((h, i) => {
       const cell = ws.getRow(4).getCell(i + 1);
       cell.value = h;
